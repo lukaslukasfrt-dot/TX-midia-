@@ -91,7 +91,7 @@ async function loadCliente(slug){
 }
 
 async function saveItem(clienteId,fc){
-  await fetch(`${SUPABASE_URL}/rest/v1/clientes?id=eq.${clienteId}`,{method:'PATCH',headers:{...HEADERS,'Prefer':'return=minimal'},body:JSON.stringify({fc})});
+  await fetch(SUPABASE_URL+'/rest/v1/clientes?id=eq.'+clienteId,{method:'PATCH',headers:{...HEADERS,'Prefer':'return=minimal'},body:JSON.stringify({fc})});
 }
 
 let clienteGlobal=null;
@@ -122,21 +122,7 @@ function renderCliente(c){
   let faseAtiva=-1;
   c.fases.forEach((f,fi)=>{if((c.fc[fi]||[]).length<f.itens.length&&faseAtiva===-1)faseAtiva=fi;});
 
-  let h=`<div style="margin-bottom:24px">
-    <div class="empresa-nome">${c.empresa}</div>
-    <div class="welcome">Acompanhe sua jornada de evolucao</div>
-    <div class="badge-wrap">
-      <span class="badge-mes">&#128197; Programa de 8 meses</span>
-      <span class="badge-mes">&#9989; ${totalFeitos} de ${totalItens} etapas concluidas</span>
-    </div>
-    <div class="prog-geral">
-      <div class="prog-label">Progresso geral</div>
-      <div class="prog-pct">${pctGeral}%</div>
-      <div class="prog-bar"><div class="prog-fill" style="width:${pctGeral}%"></div></div>
-      <div class="prog-nums"><span>Inicio</span><span>Conclusao</span></div>
-    </div>
-  </div>
-  <div class="section-title">Suas fases</div>`;
+  let h='<div style="margin-bottom:24px"><div class="empresa-nome">'+c.empresa+'</div><div class="welcome">Acompanhe sua jornada de evolucao</div><div class="badge-wrap"><span class="badge-mes">&#128197; Programa de 8 meses</span><span class="badge-mes">&#9989; '+totalFeitos+' de '+totalItens+' etapas concluidas</span></div><div class="prog-geral"><div class="prog-label">Progresso geral</div><div class="prog-pct">'+pctGeral+'%</div><div class="prog-bar"><div class="prog-fill" style="width:'+pctGeral+'%"></div></div><div class="prog-nums"><span>Inicio</span><span>Conclusao</span></div></div></div><div class="section-title">Suas fases</div>';
 
   c.fases.forEach((f,fi)=>{
     const cks=new Set(c.fc[fi]||[]);
@@ -146,30 +132,12 @@ function renderCliente(c){
     const isOpen=ativa;
     const statusLabel=concluida?'Concluida':ativa?'Em andamento':'Proxima etapa';
     const statusCls=concluida?'concluida':ativa?'ativa':'pendente';
-
-    h+=`<div class="phase-card ${concluida?'concluida':ativa?'ativa':''} ${isOpen?'open':''}" id="phase-${fi}">
-      <div class="phase-header" onclick="toggleFase(${fi})">
-        <div class="phase-num" style="background:${concluida?'#166534':ativa?cor:'#1e1e2e'}">${concluida?'&#10003;':fi+1}</div>
-        <div class="phase-meta"><div class="phase-title">${f.t}</div><div class="phase-sub">${f.s} &middot; ${f.m}</div></div>
-        <div class="phase-status ${statusCls}">${statusLabel}</div>
-        <div class="phase-arrow">&#9660;</div>
-      </div>
-      <div class="phase-body">
-        <div class="stitle-inner">Etapas</div>
-        <div class="items-list">`;
-
-    f.itens.forEach((item,ii)=>{
-      const ok=cks.has('i'+ii);
-      h+=`<div class="check-item ${ok?'done':''}" onclick="toggleItem(${fi},${ii})">
-        <div class="cbox">${ok?'&#10003;':''}</div>
-        <span class="itext">${item}</span>
-      </div>`;
-    });
-
-    h+=`</div>`;
-    if(f.ent&&f.ent.length){h+=`<div class="stitle-inner">Entregaveis desta fase</div>`;f.ent.forEach(e=>{h+=`<div class="entregavel">&#128204; ${e}</div>`;});}
-    if(f.cp){h+=`<div class="checkpoint">&#9989; Meta: ${f.cp}</div>`;}
-    h+=`<div class="fase-prog" style="margin-top:14px"><div class="fase-prog-bar"><div class="fase-prog-fill" style="width:${fp}%;background:${cor}"></div></div><div class="fase-prog-txt">${fp}% desta fase concluida</div></div></div></div>`;
+    h+='<div class="phase-card '+(concluida?'concluida':ativa?'ativa':'')+' '+(isOpen?'open':'')+'" id="phase-'+fi+'"><div class="phase-header" onclick="toggleFase('+fi+')"><div class="phase-num" style="background:'+(concluida?'#166534':ativa?cor:'#1e1e2e')+'">'+(concluida?'&#10003;':fi+1)+'</div><div class="phase-meta"><div class="phase-title">'+f.t+'</div><div class="phase-sub">'+f.s+' &middot; '+f.m+'</div></div><div class="phase-status '+statusCls+'">'+statusLabel+'</div><div class="phase-arrow">&#9660;</div></div><div class="phase-body"><div class="stitle-inner">Etapas</div><div class="items-list">';
+    f.itens.forEach((item,ii)=>{const ok=cks.has('i'+ii);h+='<div class="check-item '+(ok?'done':'')+'" onclick="toggleItem('+fi+','+ii+')"><div class="cbox">'+(ok?'&#10003;':'')+'</div><span class="itext">'+item+'</span></div>';});
+    h+='</div>';
+    if(f.ent&&f.ent.length){h+='<div class="stitle-inner">Entregaveis desta fase</div>';f.ent.forEach(e=>{h+='<div class="entregavel">&#128204; '+e+'</div>';});}
+    if(f.cp){h+='<div class="checkpoint">&#9989; Meta: '+f.cp+'</div>';}
+    h+='<div class="fase-prog" style="margin-top:14px"><div class="fase-prog-bar"><div class="fase-prog-fill" style="width:'+fp+'%;background:'+cor+'"></div></div><div class="fase-prog-txt">'+fp+'% desta fase concluida</div></div></div></div>';
   });
 
   ct.innerHTML=h;
