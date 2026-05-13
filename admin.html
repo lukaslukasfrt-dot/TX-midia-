@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TX Advisor — Admin</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0f0f14;color:#e8e8f0;min-height:100vh;padding:24px 20px 60px}
+.max{max-width:760px;margin:0 auto}
+.header{text-align:center;margin-bottom:28px}
+.tag{display:inline-block;background:#f97316;color:#fff;font-size:10px;font-weight:700;letter-spacing:3px;padding:4px 14px;border-radius:2px;margin-bottom:12px}
+h1{font-size:24px;font-weight:800;margin-bottom:4px}
+h1 span{color:#f97316}
+.sub{font-size:13px;color:#6b6b8a}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px}
+.modal{background:#16161f;border:1px solid #2a2a3a;border-radius:16px;padding:28px;width:100%;max-width:440px}
+.modal h2{font-size:18px;font-weight:700;margin-bottom:6px;color:#e8e8f0}
+.modal p{font-size:13px;color:#6b6b8a;margin-bottom:20px}
+.modal label{display:block;font-size:12px;font-weight:600;color:#9ca3af;margin-bottom:6px;margin-top:14px;letter-spacing:.5px}
+.modal input{width:100%;padding:10px 14px;border-radius:8px;border:1.5px solid #1e1e2e;background:#111118;color:#e8e8f0;font-size:14px;font-family:inherit;outline:none}
+.modal input:focus{border-color:#f97316}
+.perfil-opts{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.perfil-opt{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;border:1.5px solid #1e1e2e;cursor:pointer;transition:all .15s}
+.perfil-opt:hover{border-color:#333348}
+.perfil-opt.sel-a{background:#7f1d1d22;border-color:#991b1b}
+.perfil-opt.sel-b{background:#78350f22;border-color:#b45309}
+.perfil-opt.sel-c{background:#064e3b22;border-color:#065f46}
+.perfil-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.perfil-opt-name{font-size:13px;font-weight:600;color:#e8e8f0}
+.perfil-opt-range{font-size:11px;color:#6b6b8a;margin-top:1px}
+.modal-actions{display:flex;gap:8px;margin-top:20px}
+.btn-cancel{flex:1;padding:10px;border-radius:8px;border:1px solid #1e1e2e;background:transparent;color:#6b6b8a;font-size:13px;cursor:pointer;font-family:inherit}
+.btn-cancel:hover{border-color:#333348;color:#e8e8f0}
+.btn-create{flex:2;padding:10px;border-radius:8px;border:none;background:#f97316;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-create:hover{background:#ea6c0a}
+.btn-create:disabled{background:#333348;color:#555570;cursor:not-allowed}
+.clients-bar{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
+.client-tab{display:flex;align-items:center;gap:7px;padding:9px 14px;border-radius:10px;border:1.5px solid #1e1e2e;background:#16161f;color:#8888aa;font-size:13px;cursor:pointer;transition:all .15s;font-family:inherit}
+.client-tab:hover{border-color:#2a2a3a;color:#e8e8f0}
+.client-tab.active-a{background:#7f1d1d;color:#fff;border-color:#991b1b}
+.client-tab.active-b{background:#78350f;color:#fff;border-color:#b45309}
+.client-tab.active-c{background:#064e3b;color:#fff;border-color:#065f46}
+.client-tab-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.client-tab-del{background:transparent;border:none;color:rgba(255,255,255,.5);font-size:16px;cursor:pointer;padding:0 0 0 4px;font-family:inherit;line-height:1}
+.client-tab-del:hover{color:#fff}
+.btn-add-client{display:flex;align-items:center;gap:6px;padding:9px 14px;border-radius:10px;border:1.5px dashed #333348;background:transparent;color:#6b6b8a;font-size:13px;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+.btn-add-client:hover{border-color:#f97316;color:#f97316}
+.empty{text-align:center;padding:60px 20px}
+.empty-icon{font-size:40px;margin-bottom:12px}
+.empty h3{font-size:16px;font-weight:600;margin-bottom:6px;color:#e8e8f0}
+.empty p{font-size:13px;color:#6b6b8a;margin-bottom:20px}
+.btn-primary{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:8px;border:none;background:#f97316;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.profile-header{background:#16161f;border:1px solid #1e1e2e;border-radius:12px;padding:16px;margin-bottom:20px}
+.profile-empresa{font-size:20px;font-weight:800;margin-bottom:4px;color:#e8e8f0}
+.profile-slug{font-size:11px;background:#111118;border:1px solid #1e1e2e;border-radius:6px;padding:4px 10px;color:#f97316;font-family:monospace;display:inline-block;margin-bottom:10px}
+.profile-perfil{font-size:12px;color:#6b6b8a;margin-bottom:10px}
+.prog-bar{height:5px;background:#1e1e2e;border-radius:3px;margin-bottom:5px}
+.prog-fill{height:100%;border-radius:3px;transition:width .3s}
+.prog-text{font-size:11px;color:#6b6b8a}
+.section-title{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#555570;margin:20px 0 10px;padding-bottom:6px;border-bottom:1px solid #1e1e2e}
+.items-list{display:flex;flex-direction:column;gap:5px}
+.check-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#16161f;border:1px solid #1e1e2e;border-radius:8px;transition:all .15s;user-select:none}
+.check-item:hover{border-color:#333348}
+.check-item.done{background:#052e16;border-color:#166534}
+.check-clickable{cursor:pointer;display:flex;align-items:center;gap:10px;flex:1}
+.cbox{width:18px;height:18px;border-radius:4px;border:1.5px solid #333348;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#4ade80}
+.check-item.done .cbox{background:#166534;border-color:#166634}
+.itext{font-size:13px;color:#e8e8f0;flex:1}
+.check-item.done .itext{color:#86efac;text-decoration:line-through}
+.del-btn{width:22px;height:22px;border-radius:50%;border:none;background:transparent;color:#555570;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;font-family:inherit}
+.del-btn:hover{background:#7f1d1d;color:#fca5a5}
+.add-row{display:flex;gap:7px;margin-top:8px}
+.add-row input{flex:1;padding:8px 12px;border-radius:8px;border:1px solid #1e1e2e;background:#16161f;color:#e8e8f0;font-size:12px;font-family:inherit;outline:none}
+.add-row input:focus{border-color:#f97316}
+.add-row button{padding:8px 16px;border-radius:8px;border:1px solid #f97316;background:transparent;color:#f97316;font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+.add-row button:hover{background:#f97316;color:#fff}
+.divider{height:1px;background:#1e1e2e;margin:24px 0}
+.phase-card{background:#16161f;border:1px solid #1e1e2e;border-radius:12px;margin-bottom:10px;overflow:hidden}
+.phase-header{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;user-select:none}
+.phase-num{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.phase-meta{flex:1}
+.phase-title{font-size:13px;font-weight:600;color:#e8e8f0}
+.phase-sub{font-size:11px;color:#6b6b8a;margin-top:1px}
+.phase-badge{font-size:10px;padding:3px 10px;border-radius:100px;background:#111118;color:#6b6b8a;border:1px solid #1e1e2e;white-space:nowrap}
+.phase-arrow{font-size:11px;color:#555570;transition:transform .2s;flex-shrink:0}
+.phase-card.open .phase-arrow{transform:rotate(180deg)}
+.phase-body{display:none;padding:0 16px 16px;border-top:1px solid #1e1e2e}
+.phase-card.open .phase-body{display:block}
+.entregavel{display:flex;align-items:center;gap:6px;font-size:12px;color:#9ca3af;padding:3px 0}
+.checkpoint{margin-top:10px;background:#052e16;border:1px solid #166534;border-radius:8px;padding:10px 12px;font-size:12px;color:#86efac;line-height:1.5}
+.add-item-row{display:flex;gap:7px;margin-top:8px}
+.add-item-row input{flex:1;padding:7px 11px;border-radius:8px;border:1px solid #1e1e2e;background:#111118;color:#e8e8f0;font-size:12px;font-family:inherit;outline:none}
+.add-item-row input:focus{border-color:#f97316}
+.add-item-row button{padding:7px 13px;border-radius:8px;border:1px solid #f97316;background:transparent;color:#f97316;font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+.add-item-row button:hover{background:#f97316;color:#fff}
+.loading{text-align:center;padding:40px;color:#6b6b8a;font-size:13px}
+.link-box{background:#111118;border:1px solid #1e1e2e;border-radius:8px;padding:10px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.link-box span{font-size:12px;color:#6b6b8a;flex:1;font-family:monospace;word-break:break-all}
+.link-copy{padding:5px 12px;border-radius:6px;border:1px solid #f97316;background:transparent;color:#f97316;font-size:11px;cursor:pointer;font-family:inherit;white-space:nowrap}
+.link-copy:hover{background:#f97316;color:#fff}
+</style>
+</head>
+<body>
+<div class="max">
+  <div class="header">
+    <div class="tag">TX MÍDIA · ADMIN</div>
+    <h1>TX <span>Advisor</span></h1>
+    <p class="sub">Painel interno · Gestão de clientes</p>
+  </div>
+  <div class="clients-bar" id="clients-bar"></div>
+  <div id="content"></div>
+</div>
+
+<div class="overlay" id="modal" style="display:none">
+  <div class="modal">
+    <h2>Novo Cliente</h2>
+    <p>Preencha os dados para iniciar o acompanhamento.</p>
+    <label>EMPRESA</label>
+    <input id="m-empresa" type="text" placeholder="Ex: Luctel, BH Celulares..." oninput="checkModal()">
+    <label style="margin-top:16px">PERFIL DO CLIENTE</label>
+    <div class="perfil-opts">
+      <div class="perfil-opt" id="opt-a" onclick="selPerfil('a')">
+        <div class="perfil-dot" style="background:#dc2626"></div>
+        <div><div class="perfil-opt-name">Sobrevivente</div><div class="perfil-opt-range">Loja pequena · 100% operacional · Sem processo</div></div>
+      </div>
+      <div class="perfil-opt" id="opt-b" onclick="selPerfil('b')">
+        <div class="perfil-dot" style="background:#d97706"></div>
+        <div><div class="perfil-opt-name">Travado</div><div class="perfil-opt-range">40k – 100k/mes · Tem loja · Crescimento travado</div></div>
+      </div>
+      <div class="perfil-opt" id="opt-c" onclick="selPerfil('c')">
+        <div class="perfil-dot" style="background:#059669"></div>
+        <div><div class="perfil-opt-name">Escalador</div><div class="perfil-opt-range">100k – 300k+/mes · Tem equipe · Quer multiplicar</div></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-create" id="btn-create" onclick="criarCliente()" disabled>Criar Cliente</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL='https://eztvuonuqdrjljvsrqih.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV6dHZ1b251cWRyamxqdnNycWloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2ODAyNzUsImV4cCI6MjA5NDI1NjI3NX0.Wc_E88qDKRMEzZDJu7WazrW3HfZGxVu51zsXDQIxNb4';
+const HEADERS={'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY};
+
+const CORES=['#dc2626','#d97706','#2563eb','#059669','#7c3aed','#0891b2','#be185d','#15803d'];
+const perfisBase={
+  a:{label:'Sobrevivente',range:'Loja pequena · 100% operacional · Sem processo',color:'#991b1b',dot:'#dc2626',
+    dores:['Nao sabe precificar','Muito no operacional','Sem time','Sem POPs padronizados','Sem bracos de faturamento novos','Caos operacional','Sem lideranca','Sem cultura implementada','Sem captacao PJ','Mistura dinheiro PJ com PF','Sem vendedor online','Sem diferenciais competitivos','Sem pro-labore fixo','Nao sabe despesa fixa com exatidao','Nao sabe fazer contratacao','Precisa implementar script de venda','Precisa implementar bracos de faturamento'],
+    fases:[
+      {t:'Fundamento & Controle',s:'Parar de sangrar dinheiro',m:'Meses 1-2',itens:['Diagnostico financeiro completo','Separar caixa pessoal do empresarial','Definir pro-labore fixo','Estruturar fluxo de caixa real','Revisar e cortar custos fixos','Calcular ponto de equilibrio'],ent:['Planilha de DRE simples','Regra de retirada dos socios','Ponto de equilibrio calculado'],cp:'Cliente sabe quanto precisa faturar. Caixa separado. Pro-labore definido.'},
+      {t:'Operacao & Processo',s:'Parar o caos operacional',m:'Meses 3-4',itens:['Mapear fluxo de atendimento','Criar POP de entrada de aparelho','Criar POP de diagnostico e orcamento','Criar POP de entrega e comunicacao','Definir funcoes claras do time','Padronizar comunicacao com cliente'],ent:['3 a 5 POPs documentados','Fluxo padrao de atendimento','Organograma simples'],cp:'Atendimento funciona sem o dono. Processos documentados. Time com funcao clara.'},
+      {t:'Comercial & Precificacao',s:'Ganhar dinheiro de verdade',m:'Meses 5-6',itens:['Acabar com precificacao no achismo','Definir preco minimo, ideal e estrategico','Script de vendas no balcao e WhatsApp','Implementar follow-up basico','Treinar time em vendas'],ent:['Tabela de precos-base','Script de vendas pronto','Sequencia de follow-up'],cp:'Precificando com metodo. Conversao mensuravel. Time vendendo sem depender do dono.'},
+      {t:'Crescimento & Novos Bracos',s:'Escalar com estrutura',m:'Meses 7-8',itens:['Avaliar abertura de loja fisica ou expansao','Iniciar Google Ads (base pronta)','Estruturar atendimento PJ se aplicavel','Criar metas por area','Plano dos proximos 12 meses'],ent:['Plano de crescimento 12 meses','Indicadores claros','Criterios de escala'],cp:'Empresa com estrutura para crescer. Dono e lider. Proximo nivel definido.'}
+    ]},
+  b:{label:'Travado',range:'40k - 100k/mes · Tem loja · Crescimento travado',color:'#b45309',dot:'#d97706',
+    dores:['Nao sabe precificar','Muito no operacional','Sem time com funcoes claras','Sem POPs padronizados','Dependencia ainda muito do dono','Sem lideranca efetiva','Sem cultura implementada','Sem captacao PJ','Sem diferenciais competitivos','Precisa implementar bracos de faturamento','Precisa de clareza nas funcoes do time','Tirar do amadorismo a estrutura comercial','Ter metas claras e saber como atingi-las','Definir papel do dono'],
+    fases:[
+      {t:'Diagnostico & Ordem Estrategica',s:'Entender o que esta travando',m:'Meses 1-2',itens:['Diagnostico financeiro completo','Clareza de funcoes: quem faz o que','Tirar socios do operacional pesado','Revisar modelo societario se necessario','Identificar os 3 maiores gargalos'],ent:['Mapa dos 5 maiores problemas','Organograma revisado','Plano de prioridades'],cp:'Clareza total dos vazamentos. Funcoes definidas. Dono com agenda estrategica.'},
+      {t:'Comercial & Conversao',s:'Dinheiro na mesa ja',m:'Meses 3-4',itens:['Estrutura comercial simples e funcional','Como apresentar valor (nao preco)','Script de vendas online e balcao','Follow-up estruturado','Tecnicas de fechamento e urgencia','Treinar vendedor para liberar o dono'],ent:['Script de vendas completo','Sequencia de follow-up','Treinamento do vendedor'],cp:'Conversao mensuravel. Vendedor operando sem o dono em cada venda.'},
+      {t:'Marketing & Aquisicao',s:'Volume com qualidade',m:'Meses 5-6',itens:['Revisar Google Ads: consertar antes de escalar','Palavras que atraem cliente errado - eliminar','Alinhamento anuncio vs. atendimento','Velocidade de resposta ao lead','Criar 1 diferencial impossivel de copiar'],ent:['Google Ads revisado','Proposta de valor clara','Processo de atendimento ao lead'],cp:'Leads qualificados chegando. Atendimento rapido. Taxa de conversao mensuravel.'},
+      {t:'Escala & Novos Bracos',s:'Crescimento estruturado',m:'Meses 7-8',itens:['Avaliar atendimento PJ','Estruturar novo braco com inteligencia','Dobrar o que funcionou','Criar metas por area com indicadores','Rotina semanal do dono como lider'],ent:['Plano de escala 12 meses','Indicadores por area','Rotina de lideranca'],cp:'Empresa crescendo sem o dono no centro. Novo braco estruturado.'}
+    ]},
+  c:{label:'Escalador',range:'100k - 300k+/mes · Tem equipe · Quer multiplicar',color:'#065f46',dot:'#059669',
+    dores:['Conferir precificacao','Sem POPs padronizados','Dependencia ainda muito do dono','Sem lideranca efetiva','Sem cultura implementada','Sem captacao PJ','Sem diferenciais competitivos','Precisa implementar bracos de faturamento','Precisa de clareza nas funcoes do time','Definir papel do dono','Ter metas claras e saber como atingi-las','Definir rotina do dono','Ter a funcao clara de cada pessoa do time','Definir novas contratacoes','Reuniao semanal ou quinzenal com o time','Nao sabe olhar metricas'],
+    fases:[
+      {t:'Margem & Estrutura Senior',s:'Crescer com lucro',m:'Meses 1-2',itens:['Auditoria financeira: margem real de cada braco','Cortar o que cresce mas nao lucra','Revisar modelo societario para escala','Definir papel ideal do dono nos proximos 12 meses','Estruturar gestores que tirem o dono do dia a dia'],ent:['DRE por braco de negocio','Papel do dono revisado','KPIs de saude definidos'],cp:'Dono sabe a margem real de cada braco. Gestores operando. Empresa independente.'},
+      {t:'Lideranca & Cultura',s:'Empresa que funciona sem o dono',m:'Meses 3-4',itens:['Rotina semanal do dono como estrategista','Cultura minima esperada do time','Como extrair resultado sem pressao toxica','Incentivos corretos por funcao','Reuniao de gestao semanal produtiva'],ent:['Manual de cultura minima','Rotina de lideranca','Estrutura de incentivos'],cp:'Empresa tem cultura clara. Gestores responsaveis. Dono em agenda estrategica.'},
+      {t:'Novos Bracos & Expansao',s:'Multiplicar com inteligencia',m:'Meses 5-6',itens:['Definir qual braco novo tem maior alavancagem','Estruturar PJ: processo de prospeccao','Avaliar franquia ou multiplas unidades','Quem lidera cada novo braco','Modelo financeiro de cada expansao'],ent:['ICP do novo braco','Modelo financeiro projetado','Processo comercial do novo braco'],cp:'Novo braco estruturado com dono definido. Modelo financeiro validado.'},
+      {t:'Consolidacao & Visao 10x',s:'Plataforma para o proximo salto',m:'Meses 7-8',itens:['Revisao financeira: antes vs. depois','Comparar margem de cada braco','Escala consciente: quando contratar mais','Indicadores minimos de seguranca','Plano dos proximos 24 meses'],ent:['Comparativo antes x depois','Criterios de escala','Plano 24 meses'],cp:'Multiplos bracos funcionando. Dono com liberdade de tempo e dinheiro.'}
+    ]}
+};
+
+let clientes=[],ativo=null,modalPerfilSel=null;
+
+function toSlug(s){return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');}
+
+async function api(method,path,body){
+  const r=await fetch(SUPABASE_URL+'/rest/v1/'+path,{method,headers:{...HEADERS,'Prefer':method==='POST'?'return=representation':''},body:body?JSON.stringify(body):undefined});
+  if(!r.ok){const e=await r.text();throw new Error(e);}
+  return method==='DELETE'?null:r.json();
+}
+
+async function loadClientes(){
+  document.getElementById('content').innerHTML='<div class="loading">Carregando clientes...</div>';
+  try{
+    clientes=await api('GET','clientes?order=created_at.asc');
+    if(clientes.length>0&&!ativo)ativo=clientes[0].id;
+    renderAll();
+  }catch(e){document.getElementById('content').innerHTML='<div class="loading">Erro ao carregar. Verifique a conexao.</div>';}
+}
+
+async function saveCliente(c){
+  try{
+    await api('PATCH','clientes?id=eq.'+c.id,{dores:c.dores,fases:c.fases,dc:c.dc,fc:c.fc,fo:c.fo});
+  }catch(e){console.error('Erro ao salvar:',e);}
+}
+
+function getAtivo(){return clientes.find(c=>c.id===ativo);}
+
+function openModal(){document.getElementById('m-empresa').value='';modalPerfilSel=null;['a','b','c'].forEach(p=>document.getElementById('opt-'+p).className='perfil-opt');document.getElementById('btn-create').disabled=true;document.getElementById('modal').style.display='flex';setTimeout(()=>document.getElementById('m-empresa').focus(),100);}
+function closeModal(){document.getElementById('modal').style.display='none';}
+function selPerfil(p){modalPerfilSel=p;['a','b','c'].forEach(x=>document.getElementById('opt-'+x).className='perfil-opt'+(x===p?' sel-'+p:''));checkModal();}
+function checkModal(){document.getElementById('btn-create').disabled=!(document.getElementById('m-empresa').value.trim()&&modalPerfilSel);}
+
+async function criarCliente(){
+  const empresa=document.getElementById('m-empresa').value.trim();
+  if(!empresa||!modalPerfilSel)return;
+  document.getElementById('btn-create').disabled=true;
+  document.getElementById('btn-create').textContent='Criando...';
+  const base=perfisBase[modalPerfilSel],id='c'+Date.now(),slug=toSlug(empresa);
+  const novo={id,empresa,slug,perfil:modalPerfilSel,dores:[...base.dores],fases:JSON.parse(JSON.stringify(base.fases)),dc:[],fc:{},fo:{}};
+  try{
+    await api('POST','clientes',novo);
+    clientes.push(novo);
+    ativo=id;
+    closeModal();
+    renderAll();
+  }catch(e){
+    alert('Erro ao criar cliente. Tente novamente.');
+    document.getElementById('btn-create').disabled=false;
+    document.getElementById('btn-create').textContent='Criar Cliente';
+  }
+}
+
+async function deleteCliente(id){
+  if(!confirm('Remover este cliente permanentemente?'))return;
+  try{
+    await api('DELETE','clientes?id=eq.'+id);
+    clientes=clientes.filter(c=>c.id!==id);
+    ativo=clientes.length?clientes[0].id:null;
+    renderAll();
+  }catch(e){alert('Erro ao remover.');}
+}
+
+function setAtivo(id){ativo=id;renderAll();}
+
+function toggleDore(i){const c=getAtivo();const s=new Set(c.dc);s.has(i)?s.delete(i):s.add(i);c.dc=[...s];saveCliente(c);render();}
+function deleteDore(i){const c=getAtivo();c.dores.splice(i,1);const s=new Set(c.dc);const n=new Set();s.forEach(x=>{if(x<i)n.add(x);else if(x>i)n.add(x-1);});c.dc=[...n];saveCliente(c);render();}
+function addDore(){const el=document.getElementById('nova-dore');const v=el.value.trim();if(!v)return;getAtivo().dores.push(v);el.value='';saveCliente(getAtivo());render();}
+function toggleFase(fi){const c=getAtivo();c.fo[fi]=!c.fo[fi];saveCliente(c);render();}
+function toggleFaseItem(fi,ii){const c=getAtivo();if(!c.fc[fi])c.fc[fi]=[];const s=new Set(c.fc[fi]);const k='i'+ii;s.has(k)?s.delete(k):s.add(k);c.fc[fi]=[...s];saveCliente(c);render();}
+function deleteFaseItem(fi,ii){const c=getAtivo();c.fases[fi].itens.splice(ii,1);if(c.fc[fi]){const s=new Set(c.fc[fi]);const n=new Set();s.forEach(k=>{const x=parseInt(k.slice(1));if(x<ii)n.add('i'+x);else if(x>ii)n.add('i'+(x-1));});c.fc[fi]=[...n];}saveCliente(c);render();}
+function addFaseItem(fi){const el=document.getElementById('add-item-'+fi);const v=el.value.trim();if(!v)return;getAtivo().fases[fi].itens.push(v);el.value='';saveCliente(getAtivo());render();}
+function copyLink(slug){navigator.clipboard.writeText(window.location.origin+'/cliente?slug='+slug);alert('Link copiado!');}
+
+function renderAll(){renderBar();render();}
+function renderBar(){
+  const bar=document.getElementById('clients-bar');let h='';
+  clientes.forEach(c=>{const p=perfisBase[c.perfil],ia=c.id===ativo;h+=`<button class="client-tab ${ia?'active-'+c.perfil:''}" onclick="setAtivo('${c.id}')"><div class="client-tab-dot" style="background:${p.dot}"></div>${c.empresa}${ia?`<button class="client-tab-del" onclick="event.stopPropagation();deleteCliente('${c.id}')">x</button>`:''}</button>`;});
+  h+=`<button class="btn-add-client" onclick="openModal()">+ Novo cliente</button>`;
+  bar.innerHTML=h;
+}
+
+function render(){
+  const ct=document.getElementById('content');const c=getAtivo();
+  if(!c){ct.innerHTML='<div class="empty"><div class="empty-icon">&#x1F3E2;</div><h3>Nenhum cliente ainda</h3><p>Adicione o primeiro cliente para comecar.</p><button class="btn-primary" onclick="openModal()">+ Adicionar cliente</button></div>';return;}
+  const p=perfisBase[c.perfil];const ds=new Set(c.dc);const tot=c.dores.length,dn=ds.size,pct=tot>0?Math.round(dn/tot*100):0;
+  const slug=c.slug||toSlug(c.empresa);
+  let h=`<div class="profile-header">
+    <div class="profile-empresa">${c.empresa}</div>
+    <div class="profile-perfil">Perfil: <strong style="color:${p.dot}">${p.label}</strong> · ${p.range}</div>
+    <div class="link-box"><span>Link do cliente: .../ cliente?slug=${slug}</span><button class="link-copy" onclick="copyLink('${slug}')">Copiar link</button></div>
+    <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${p.color}"></div></div>
+    <div class="prog-text">${dn} de ${tot} dores identificadas (${pct}%)</div>
+  </div>
+  <div class="section-title">Dores do cliente</div><div class="items-list">`;
+  c.dores.forEach((d,i)=>{const ok=ds.has(i);h+=`<div class="check-item ${ok?'done':''}"><div class="check-clickable" onclick="toggleDore(${i})"><div class="cbox">${ok?'&#10003;':''}</div><span class="itext">${d}</span></div><button class="del-btn" onclick="deleteDore(${i})">x</button></div>`;});
+  h+=`</div><div class="add-row"><input id="nova-dore" type="text" placeholder="Dor especifica deste cliente..." onkeydown="if(event.key==='Enter')addDore()"><button onclick="addDore()">+ Adicionar</button></div><div class="divider"></div><div class="section-title">Fases de entrega - 8 meses</div>`;
+  c.fases.forEach((f,fi)=>{const cks=new Set(c.fc[fi]||[]);const ft=f.itens.length,fd=cks.size,fp=ft>0?Math.round(fd/ft*100):0;const io=!!c.fo[fi];const cor=CORES[fi%CORES.length];h+=`<div class="phase-card ${io?'open':''}"><div class="phase-header" onclick="toggleFase(${fi})"><div class="phase-num" style="background:${cor}">${fi+1}</div><div class="phase-meta"><div class="phase-title">${f.t}</div><div class="phase-sub">${f.s} - ${fd}/${ft} itens</div></div><div class="phase-badge">${f.m}</div><div class="phase-arrow">&#9660;</div></div><div class="phase-body"><div class="section-title" style="margin-top:12px">O que trabalhar</div><div class="items-list">`;f.itens.forEach((item,ii)=>{const ok=cks.has('i'+ii);h+=`<div class="check-item ${ok?'done':''}"><div class="check-clickable" onclick="toggleFaseItem(${fi},${ii})"><div class="cbox">${ok?'&#10003;':''}</div><span class="itext">${item}</span></div><button class="del-btn" onclick="deleteFaseItem(${fi},${ii})">x</button></div>`;});h+=`</div><div class="add-item-row"><input id="add-item-${fi}" type="text" placeholder="Adicionar item..." onkeydown="if(event.key==='Enter')addFaseItem(${fi})"><button onclick="addFaseItem(${fi})">+ Item</button></div>`;if(f.ent&&f.ent.length){h+='<div class="section-title" style="margin-top:12px">Entregaveis</div>';f.ent.forEach(e=>{h+=`<div class="entregavel">&#128204; ${e}</div>`;});}if(f.cp){h+=`<div class="checkpoint">&#10003; Checkpoint: ${f.cp}</div>`;}h+=`<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:${fp}%;background:${cor}"></div></div><div class="prog-text" style="margin-top:4px">${fp}% desta fase concluida</div></div></div>`;});
+  ct.innerHTML=h;
+}
+
+loadClientes();
+</script>
+</body>
+</html>
