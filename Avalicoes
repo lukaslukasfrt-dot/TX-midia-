@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TX Mídia — Avaliações de Clientes</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #191919;
+    --border: #2a2a2a;
+    --orange: #E8A020;
+    --orange-dim: #c48510;
+    --yellow: #FFD700;
+    --white: #f5f5f0;
+    --gray: #888;
+    --gray-light: #aaa;
+    --pending: #2d2d2d;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--white); font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 0; }
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 32px 48px 28px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+  .logo-area { display: flex; align-items: center; gap: 16px; }
+  .logo-bar { width: 4px; height: 44px; background: linear-gradient(to bottom, var(--yellow), var(--orange)); border-radius: 2px; }
+  .logo-text h1 { font-family: 'DM Serif Display', serif; font-size: 22px; letter-spacing: 0.02em; color: var(--white); line-height: 1; }
+  .logo-text p { font-size: 11px; font-weight: 300; color: var(--gray); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 3px; }
+  .header-stats { display: flex; gap: 32px; }
+  .stat { text-align: right; }
+  .stat-value { font-family: 'DM Serif Display', serif; font-size: 28px; color: var(--orange); line-height: 1; }
+  .stat-label { font-size: 10px; font-weight: 400; color: var(--gray); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 3px; }
+  .accent-bar { height: 3px; background: linear-gradient(to right, var(--orange), var(--yellow), transparent); position: fixed; top: 0; left: 0; right: 0; z-index: 200; }
+  main { max-width: 1100px; margin: 0 auto; padding: 48px 32px 80px; }
+  .section-title { font-family: 'DM Serif Display', serif; font-size: 13px; color: var(--gray); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .table-head { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 4fr; gap: 0; padding: 0 20px 12px; font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gray); border-bottom: 1px solid var(--border); margin-bottom: 4px; }
+  .col-center { text-align: center; }
+  .cards { display: flex; flex-direction: column; gap: 4px; }
+  .card { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 4fr; align-items: center; gap: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; transition: border-color 0.2s, transform 0.2s; animation: fadeUp 0.5s ease both; }
+  .card:hover { border-color: var(--orange-dim); transform: translateX(3px); }
+  .card.pending { background: var(--pending); opacity: 0.55; }
+  .card.pending:hover { opacity: 0.7; border-color: #444; transform: none; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .card:nth-child(1) { animation-delay: 0.05s; }
+  .card:nth-child(2) { animation-delay: 0.10s; }
+  .card:nth-child(3) { animation-delay: 0.15s; }
+  .card:nth-child(4) { animation-delay: 0.20s; }
+  .card:nth-child(5) { animation-delay: 0.25s; }
+  .card:nth-child(6) { animation-delay: 0.30s; }
+  .card:nth-child(7) { animation-delay: 0.35s; }
+  .card:nth-child(8) { animation-delay: 0.40s; }
+  .card:nth-child(9) { animation-delay: 0.45s; }
+  .card:nth-child(10) { animation-delay: 0.50s; }
+  .client-name { font-weight: 600; font-size: 14px; color: var(--white); }
+  .client-pending-label { font-size: 10px; color: var(--gray); font-weight: 400; margin-top: 2px; letter-spacing: 0.05em; text-transform: uppercase; }
+  .cell-date { font-size: 12px; color: var(--gray-light); }
+  .score-cell { display: flex; justify-content: center; }
+  .score-ring { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'DM Serif Display', serif; font-size: 16px; font-weight: 400; position: relative; }
+  .score-10 { background: rgba(232,160,32,0.15); border: 2px solid var(--orange); color: var(--orange); }
+  .score-9 { background: rgba(255,215,0,0.10); border: 2px solid var(--yellow); color: var(--yellow); }
+  .score-7 { background: rgba(136,136,136,0.12); border: 2px solid #666; color: #aaa; }
+  .score-empty { background: transparent; border: 1.5px dashed #333; color: #444; font-size: 13px; }
+  .recommend-cell { display: flex; justify-content: center; }
+  .badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge-yes { background: rgba(232,160,32,0.12); color: var(--orange); border: 1px solid rgba(232,160,32,0.3); }
+  .badge-no { background: rgba(100,100,100,0.08); color: #555; border: 1px dashed #333; }
+  .opinion-text { font-size: 13px; color: var(--gray-light); line-height: 1.55; font-style: italic; padding-left: 16px; border-left: 2px solid var(--orange); margin-left: 4px; }
+  .opinion-empty { font-size: 12px; color: #444; padding-left: 16px; border-left: 2px dashed #2a2a2a; margin-left: 4px; }
+  footer { text-align: center; padding: 32px; font-size: 11px; color: #333; letter-spacing: 0.08em; border-top: 1px solid var(--border); margin-top: 48px; }
+  footer span { color: var(--orange); }
+</style>
+</head>
+<body>
+<div class="accent-bar"></div>
+<header>
+  <div class="logo-area">
+    <div class="logo-bar"></div>
+    <div class="logo-text">
+      <h1>TX Mídia</h1>
+      <p>Avaliações dos Clientes — Advisor</p>
+    </div>
+  </div>
+  <div class="header-stats">
+    <div class="stat"><div class="stat-value" id="stat-responderam">4</div><div class="stat-label">Responderam</div></div>
+    <div class="stat"><div class="stat-value" id="stat-media">9.0</div><div class="stat-label">Nota Média</div></div>
+    <div class="stat"><div class="stat-value" id="stat-total">10</div><div class="stat-label">Total Clientes</div></div>
+  </div>
+</header>
+<main>
+  <div class="section-title">Painel de Avaliações</div>
+  <div class="table-head">
+    <div>Cliente</div>
+    <div class="col-center">Data</div>
+    <div class="col-center">Nota</div>
+    <div class="col-center">Indicaria?</div>
+    <div style="padding-left:20px">Opinião sobre o Projeto</div>
+  </div>
+  <div class="cards">
+    <div class="card">
+      <div class="client-name">Smartphone Service</div>
+      <div class="cell-date col-center">—</div>
+      <div class="score-cell"><div class="score-ring score-empty">—</div></div>
+      <div class="recommend-cell"><div class="badge badge-no">Pendente</div></div>
+      <div class="opinion-empty">Aguardando resposta</div>
+    </div>
+    <div class="card">
+      <div class="client-name">CS Água da Boa</div>
+      <div class="cell-date col-center">—</div>
+      <div class="score-cell"><div class="score-ring score-10">10</div></div>
+      <div class="recommend-cell"><div class="badge badge-yes">✓ Sim — 10</div></div>
+      <div class="opinion-text">"O grande diferencial é ter alguém fora da sua operação te ajudando. Não tenho o que reclamar, só agradecer."</div>
+    </div>
+    <div class="card pending">
+      <div><div class="client-name">Fix na Hora</div><div class="client-pending-label">Não respondeu</div></div>
+      <div class="cell-date col-center">—</div>
+      <div class="score-cell"><div class="score-ring score-empty">—</div></div>
+      <div class="recommend-cell"><div class="badge badge-no">Pendente</div></div>
+      <div class="opinion-empty">Aguardando resposta</div>
+    </div>
+    <div class="card pending">
+      <div><div class="client-name">PCAMP</div><div class="client-pending-label">Não respondeu</div></div>
+      <div class="cell-date col-center">—</div>
+      <div class="score-cell"><div class="score-ring score-empty">—</div></div>
+      <div class="recommend-cell"><div class="badge badge-no">Pendente</div></div>
+      <div class="opinion-empty">Aguardando resposta</div>
+    </div>
+    <div class="card pending">
+      <div><div class="client-name">Hemi Cell</div><div class="client-pending-label">Não respondeu</div></div>
+      <div class="cell-date col-center">—</div>
+      <div class="score-cell"><div class="score-ring score-empty">—</div></div>
+      <div class="recommend-cell"><div class="badge badge-no">Pendente</div></div>
+      <div class="opinion-empty">Aguardando resposta</div>
+    </div>
+    <div class="card">
+      <div class="client-name">Senhor Smart BH</div>
+      <div class="cell-date col-center">—</div>
+      <div class="score-cell"><div class="score-ring score-9">9</div></div>
+      <div class="recommend-cell"><div class="badge badge-yes">✓ Sim — 10</div></div>
+      <div class="opinion-text">"Não dou 10 porque não existe nada perfeito. Às vezes a gente fica com dúvida, receio do que vocês falam. Mas faz todo sentido, estou tendo clareza e está me ajudando muitoooo."</div>
+    </div>
+    <div class="card">
+      <div class="client-name">Ed Celular</div>
+      <div class="cell-date col-center">19/05</div>
+      <div class="score-cell"><div class="score-ring score-10">10</div></div>
+      <div class="recommend-cell"><div class="badge badge-yes">✓ Sim — 10</div></div>
+      <div class="opinion-text">"O acompanhamento tem sido muito positivo. Eles trazem visões que dificilmente teríamos sozinhos, pela experiência com outros empresários da mesma área. Os prazos e metas nos ajudam a manter foco e constância. <em>Sugestão: video aulas sobre gestão financeira e reuniões semanais.</em>"</div>
+    </div>
+    <div class="card pending">
+      <div><div class="client-name">Motocell</div><div class="client-pending-label">Não respondeu</div></div>
+      <div class="cell-date col-center">—</div>
+      <div class="score-cell"><div class="score-ring score-empty">—</div></div>
+      <div class="recommend-cell"><div class="badge badge-no">Pendente</div></div>
+      <div class="opinion-empty">Aguardando resposta</div>
+    </div>
+    <div class="card">
+      <div class="client-name">Casa do Notebook</div>
+      <div class="cell-date col-center">—</div>
+      <div class="score-cell"><div class="score-ring score-7">7</div></div>
+      <div class="recommend-cell"><div class="badge badge-yes">✓ Sim — 10</div></div>
+      <div class="opinion-text">"Sinto falha no cronograma e que a metodologia está ultrapassada. As informações são passadas, mas não sinto que acompanham de verdade para trazer isso para dentro da reunião."</div>
+    </div>
+    <div class="card pending">
+      <div><div class="client-name">ISatek</div><div class="client-pending-label">Não respondeu</div></div>
+      <div class="cell-date col-center">—</div>
+      <div class="score-cell"><div class="score-ring score-empty">—</div></div>
+      <div class="recommend-cell"><div class="badge badge-no">Pendente</div></div>
+      <div class="opinion-empty">Aguardando resposta</div>
+    </div>
+  </div>
+</main>
+<footer>Gerado por <span>TX Mídia</span> · Programa Advisor · Todos os direitos reservados</footer>
+</body>
+</html>
