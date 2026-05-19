@@ -76,74 +76,33 @@ const SUPABASE_URL='https://eztvuonuqdrjljvsrqih.supabase.co';
 const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV6dHZ1b251cWRyamxqdnNycWloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2ODAyNzUsImV4cCI6MjA5NDI1NjI3NX0.Wc_E88qDKRMEzZDJu7WazrW3HfZGxVu51zsXDQIxNb4';
 const HEADERS={'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY};
 const CORES=['#dc2626','#d97706','#2563eb','#059669','#7c3aed','#0891b2','#be185d','#15803d'];
-
 function getSlug(){const p=new URLSearchParams(window.location.search);return p.get('slug')||'';}
-
 async function loadCliente(slug){
-  try{
-    const r=await fetch(SUPABASE_URL+'/rest/v1/clientes?slug=eq.'+encodeURIComponent(slug)+'&limit=1',{headers:HEADERS});
-    const data=await r.json();
-    if(data&&data.length>0)return data[0];
-  }catch(e){console.error('Erro slug direto:',e);}
-  try{
-    const r2=await fetch(SUPABASE_URL+'/rest/v1/clientes?select=id,empresa,slug,perfil,dores,fases,dc,fc,fo',{headers:HEADERS});
-    const all=await r2.json();
-    if(!all||!all.length)return null;
-    function toSlug(s){return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');}
-    return all.find(c=>c.slug===slug||toSlug(c.empresa)===slug)||null;
-  }catch(e){console.error('Erro busca geral:',e);return null;}
+  try{const r=await fetch(SUPABASE_URL+'/rest/v1/clientes?slug=eq.'+encodeURIComponent(slug)+'&limit=1',{headers:HEADERS});const data=await r.json();if(data&&data.length>0)return data[0];}catch(e){}
+  try{const r2=await fetch(SUPABASE_URL+'/rest/v1/clientes?select=*',{headers:HEADERS});const all=await r2.json();if(!all||!all.length)return null;function toSlug(s){return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');}return all.find(c=>c.slug===slug||toSlug(c.empresa)===slug)||null;}catch(e){return null;}
 }
-
-async function saveItem(clienteId,fc,dc){
-  const body=dc!==undefined?{fc,dc}:{fc};
-  await fetch(SUPABASE_URL+'/rest/v1/clientes?id=eq.'+clienteId,{method:'PATCH',headers:{...HEADERS,'Prefer':'return=minimal'},body:JSON.stringify(body)});
-}
-
-async function toggleDore(i){
-  if(!clienteGlobal)return;
-  const c=clienteGlobal;
-  const s=new Set(c.dc||[]);
-  s.has(i)?s.delete(i):s.add(i);
-  c.dc=[...s];
-  await saveItem(c.id,c.fc,c.dc);
-  renderCliente(c);
-}
-
+async function saveItem(clienteId,fc,dc){const body=dc!==undefined?{fc,dc}:{fc};await fetch(SUPABASE_URL+'/rest/v1/clientes?id=eq.'+clienteId,{method:'PATCH',headers:{...HEADERS,'Prefer':'return=minimal'},body:JSON.stringify(body)});}
+async function toggleDore(i){if(!clienteGlobal)return;const c=clienteGlobal;const s=new Set(c.dc||[]);s.has(i)?s.delete(i):s.add(i);c.dc=[...s];await saveItem(c.id,c.fc,c.dc);renderCliente(c);}
 let clienteGlobal=null;
-
-async function toggleItem(fi,ii){
-  if(!clienteGlobal)return;
-  const c=clienteGlobal;
-  if(!c.fc[fi])c.fc[fi]=[];
-  const s=new Set(c.fc[fi]);
-  const k='i'+ii;
-  s.has(k)?s.delete(k):s.add(k);
-  c.fc[fi]=[...s];
-  await saveItem(c.id,c.fc);
-  renderCliente(c);
-}
-
+async function toggleItem(fi,ii){if(!clienteGlobal)return;const c=clienteGlobal;if(!c.fc[fi])c.fc[fi]=[];const s=new Set(c.fc[fi]);const k='i'+ii;s.has(k)?s.delete(k):s.add(k);c.fc[fi]=[...s];await saveItem(c.id,c.fc);renderCliente(c);}
 function toggleFase(fi){const card=document.getElementById('phase-'+fi);if(card)card.classList.toggle('open');}
-
 function renderCliente(c){
   clienteGlobal=c;
   const ct=document.getElementById('content');
+  const ds=new Set(c.dc||[]);
   let totalItens=0,totalFeitos=0;
+  totalItens+=c.dores?c.dores.length:0;
+  totalFeitos+=ds.size;
   c.fases.forEach((f,fi)=>{totalItens+=f.itens.length;totalFeitos+=(c.fc[fi]||[]).length;});
   const pctGeral=totalItens>0?Math.round(totalFeitos/totalItens*100):0;
   let faseAtiva=-1;
   c.fases.forEach((f,fi)=>{if((c.fc[fi]||[]).length<f.itens.length&&faseAtiva===-1)faseAtiva=fi;});
-  const ds=new Set(c.dc||[]);
-  let h='<div style="margin-bottom:24px"><div class="empresa-nome">'+c.empresa+'</div><div class="welcome">Acompanhe sua jornada de evolucao</div><div class="badge-wrap"><span class="badge-mes">&#128197; Programa de 8 meses</span><span class="badge-mes">&#9989; '+totalFeitos+' de '+totalItens+' etapas concluidas</span></div><div class="prog-geral"><div class="prog-label">Progresso geral</div><div class="prog-pct">'+pctGeral+'%</div><div class="prog-bar"><div class="prog-fill" style="width:'+pctGeral+'%"></div></div><div class="prog-nums"><span>Inicio</span><span>Conclusao</span></div></div></div>';
+  const mesAtual=c.mes_inicio||1;
+  let h='<div style="margin-bottom:24px"><div class="empresa-nome">'+c.empresa+'</div><div class="welcome">Acompanhe sua jornada de evolucao</div><div class="badge-wrap"><span class="badge-mes" style="background:#1a1a2e;border-color:#f97316;color:#f97316;font-weight:700">&#128197; Mes '+mesAtual+' de 8</span><span class="badge-mes">&#9989; '+totalFeitos+' de '+totalItens+' etapas concluidas</span></div><div class="prog-geral"><div class="prog-label">Progresso geral</div><div class="prog-pct">'+pctGeral+'%</div><div class="prog-bar"><div class="prog-fill" style="width:'+pctGeral+'%"></div></div><div class="prog-nums"><span>Inicio</span><span>Conclusao</span></div></div></div>';
   if(c.dores&&c.dores.length){h+='<div class="section-title">Pontos de melhoria</div><div class="items-list">';c.dores.forEach((d,i)=>{const ok=ds.has(i);h+='<div class="check-item '+(ok?'done':'')+'" onclick="toggleDore('+i+')"><div class="cbox">'+(ok?'&#10003;':'')+'</div><span class="itext">'+d+'</span></div>';});h+='</div><br>';}
   h+='<div class="section-title">Suas fases</div>';
   c.fases.forEach((f,fi)=>{
-    const cks=new Set(c.fc[fi]||[]);
-    const ft=f.itens.length,fd=cks.size,fp=ft>0?Math.round(fd/ft*100):0;
-    const concluida=fd===ft&&ft>0,ativa=fi===faseAtiva;
-    const cor=CORES[fi%CORES.length];
-    const statusLabel=concluida?'Concluida':ativa?'Em andamento':'Proxima etapa';
-    const statusCls=concluida?'concluida':ativa?'ativa':'pendente';
+    const cks=new Set(c.fc[fi]||[]);const ft=f.itens.length,fd=cks.size,fp=ft>0?Math.round(fd/ft*100):0;const concluida=fd===ft&&ft>0,ativa=fi===faseAtiva;const cor=CORES[fi%CORES.length];const statusLabel=concluida?'Concluida':ativa?'Em andamento':'Proxima etapa';const statusCls=concluida?'concluida':ativa?'ativa':'pendente';
     h+='<div class="phase-card '+(concluida?'concluida':ativa?'ativa':'')+' '+(ativa?'open':'')+'" id="phase-'+fi+'"><div class="phase-header" onclick="toggleFase('+fi+')"><div class="phase-num" style="background:'+(concluida?'#166534':ativa?cor:'#1e1e2e')+'">'+(concluida?'&#10003;':fi+1)+'</div><div class="phase-meta"><div class="phase-title">'+f.t+'</div><div class="phase-sub">'+f.s+' &middot; '+f.m+'</div></div><div class="phase-status '+statusCls+'">'+statusLabel+'</div><div class="phase-arrow">&#9660;</div></div><div class="phase-body"><div class="stitle-inner">Etapas</div><div class="items-list">';
     f.itens.forEach((item,ii)=>{const ok=cks.has('i'+ii);h+='<div class="check-item '+(ok?'done':'')+'" onclick="toggleItem('+fi+','+ii+')"><div class="cbox">'+(ok?'&#10003;':'')+'</div><span class="itext">'+item+'</span></div>';});
     h+='</div>';
@@ -153,17 +112,11 @@ function renderCliente(c){
   });
   ct.innerHTML=h;
 }
-
 async function init(){
   const slug=getSlug();
   if(!slug){document.getElementById('content').innerHTML='<div class="not-found"><div class="not-found-icon">&#128274;</div><h3>Link invalido</h3><p>Verifique o link enviado pela TX Midia.</p></div>';return;}
-  try{
-    const c=await loadCliente(slug);
-    if(!c){document.getElementById('content').innerHTML='<div class="not-found"><div class="not-found-icon">&#128274;</div><h3>Cliente nao encontrado</h3><p>Verifique o link enviado pela TX Midia.</p></div>';return;}
-    renderCliente(c);
-  }catch(e){document.getElementById('content').innerHTML='<div class="not-found"><div class="not-found-icon">&#128274;</div><h3>Erro: '+e.message+'</h3></div>';}
+  try{const c=await loadCliente(slug);if(!c){document.getElementById('content').innerHTML='<div class="not-found"><div class="not-found-icon">&#128274;</div><h3>Cliente nao encontrado</h3><p>Verifique o link enviado pela TX Midia.</p></div>';return;}renderCliente(c);}catch(e){document.getElementById('content').innerHTML='<div class="not-found"><div class="not-found-icon">&#128274;</div><h3>Erro de conexao</h3></div>';}
 }
-
 init();
 </script>
 </body>
