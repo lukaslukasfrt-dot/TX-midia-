@@ -95,6 +95,30 @@ h1 span{color:#f97316}
 .add-item-row button{padding:7px 13px;border-radius:8px;border:1px solid #f97316;background:transparent;color:#f97316;font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
 .add-item-row button:hover{background:#f97316;color:#fff}
 .loading{text-align:center;padding:40px;color:#6b6b8a;font-size:13px}
+.btn-nps{display:flex;align-items:center;gap:6px;padding:9px 14px;border-radius:10px;border:1.5px solid #f97316;background:transparent;color:#f97316;font-size:13px;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;margin-left:auto}
+.btn-nps:hover{background:#f97316;color:#fff}
+.btn-nps.ativo{background:#f97316;color:#fff}
+.nps-panel{background:#0f0f0f;border-radius:12px;padding:0;overflow:hidden}
+.nps-header{background:#191919;border-bottom:1px solid #2a2a2a;padding:20px 24px;display:flex;align-items:center;justify-content:space-between}
+.nps-stats{display:flex;gap:24px}
+.nps-stat-val{font-size:24px;font-weight:800;color:#E8A020}
+.nps-stat-lbl{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.1em;margin-top:2px}
+.nps-cards{display:flex;flex-direction:column;gap:4px;padding:16px}
+.nps-card{display:grid;grid-template-columns:1.5fr 0.8fr 0.8fr 3fr;align-items:center;gap:0;background:#191919;border:1px solid #2a2a2a;border-radius:10px;padding:14px 16px;transition:border-color .2s}
+.nps-card:hover{border-color:#c48510}
+.nps-card.pending{opacity:0.5}
+.nps-cname{font-weight:600;font-size:13px;color:#f5f5f0}
+.nps-plabel{font-size:10px;color:#888;margin-top:2px;text-transform:uppercase}
+.nps-ring{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;margin:0 auto}
+.nps-ring-10{background:rgba(232,160,32,.15);border:2px solid #E8A020;color:#E8A020}
+.nps-ring-9{background:rgba(255,215,0,.10);border:2px solid #FFD700;color:#FFD700}
+.nps-ring-7{background:rgba(136,136,136,.12);border:2px solid #666;color:#aaa}
+.nps-ring-empty{background:transparent;border:1.5px dashed #333;color:#444;font-size:12px}
+.nps-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;margin:0 auto}
+.nps-badge-yes{background:rgba(232,160,32,.12);color:#E8A020;border:1px solid rgba(232,160,32,.3)}
+.nps-badge-no{background:rgba(100,100,100,.08);color:#555;border:1px dashed #333}
+.nps-opinion{font-size:12px;color:#aaa;line-height:1.5;font-style:italic;padding-left:12px;border-left:2px solid #E8A020;margin-left:4px}
+.nps-opinion-empty{font-size:12px;color:#444;padding-left:12px;border-left:2px dashed #2a2a2a;margin-left:4px}
 .link-box{background:#111118;border:1px solid #1e1e2e;border-radius:8px;padding:10px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px}
 .link-box span{font-size:12px;color:#6b6b8a;flex:1;font-family:monospace;word-break:break-all}
 .link-copy{padding:5px 12px;border-radius:6px;border:1px solid #f97316;background:transparent;color:#f97316;font-size:11px;cursor:pointer;font-family:inherit;white-space:nowrap}
@@ -111,7 +135,7 @@ h1 span{color:#f97316}
   <div class="clients-bar" id="clients-bar"></div>
   <div id="content"></div>
 </div>
-
+ 
 <div class="overlay" id="modal" style="display:none">
   <div class="modal">
     <h2>Novo Cliente</h2>
@@ -139,12 +163,12 @@ h1 span{color:#f97316}
     </div>
   </div>
 </div>
-
+ 
 <script>
 const SUPABASE_URL='https://eztvuonuqdrjljvsrqih.supabase.co';
 const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV6dHZ1b251cWRyamxqdnNycWloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2ODAyNzUsImV4cCI6MjA5NDI1NjI3NX0.Wc_E88qDKRMEzZDJu7WazrW3HfZGxVu51zsXDQIxNb4';
 const HEADERS={'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY};
-
+ 
 const CORES=['#dc2626','#d97706','#2563eb','#059669','#7c3aed','#0891b2','#be185d','#15803d'];
 const perfisBase={
   a:{label:'Sobrevivente',range:'Loja pequena · 100% operacional · Sem processo',color:'#991b1b',dot:'#dc2626',
@@ -172,17 +196,17 @@ const perfisBase={
       {t:'Consolidacao & Visao 10x',s:'Plataforma para o proximo salto',m:'Meses 7-8',itens:['Revisao financeira: antes vs. depois','Comparar margem de cada braco','Escala consciente: quando contratar mais','Indicadores minimos de seguranca','Plano dos proximos 24 meses'],ent:['Comparativo antes x depois','Criterios de escala','Plano 24 meses'],cp:'Multiplos bracos funcionando. Dono com liberdade de tempo e dinheiro.'}
     ]}
 };
-
-let clientes=[],ativo=null,modalPerfilSel=null;
-
+ 
+let clientes=[],ativo=null,modalPerfilSel=null,abaAtiva="clientes";
+ 
 function toSlug(s){return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');}
-
+ 
 async function api(method,path,body){
   const r=await fetch(SUPABASE_URL+'/rest/v1/'+path,{method,headers:{...HEADERS,'Prefer':method==='POST'?'return=representation':''},body:body?JSON.stringify(body):undefined});
   if(!r.ok){const e=await r.text();throw new Error(e);}
   return method==='DELETE'?null:r.json();
 }
-
+ 
 async function loadClientes(){
   document.getElementById('content').innerHTML='<div class="loading">Carregando clientes...</div>';
   try{
@@ -191,20 +215,20 @@ async function loadClientes(){
     renderAll();
   }catch(e){document.getElementById('content').innerHTML='<div class="loading">Erro ao carregar. Verifique a conexao.</div>';}
 }
-
+ 
 async function saveCliente(c){
   try{
     await api('PATCH','clientes?id=eq.'+c.id,{dores:c.dores,fases:c.fases,dc:c.dc,fc:c.fc,fo:c.fo});
   }catch(e){console.error('Erro ao salvar:',e);}
 }
-
+ 
 function getAtivo(){return clientes.find(c=>c.id===ativo);}
-
+ 
 function openModal(){document.getElementById('m-empresa').value='';modalPerfilSel=null;['a','b','c'].forEach(p=>document.getElementById('opt-'+p).className='perfil-opt');document.getElementById('btn-create').disabled=true;document.getElementById('modal').style.display='flex';setTimeout(()=>document.getElementById('m-empresa').focus(),100);}
 function closeModal(){document.getElementById('modal').style.display='none';}
 function selPerfil(p){modalPerfilSel=p;['a','b','c'].forEach(x=>document.getElementById('opt-'+x).className='perfil-opt'+(x===p?' sel-'+p:''));checkModal();}
 function checkModal(){document.getElementById('btn-create').disabled=!(document.getElementById('m-empresa').value.trim()&&modalPerfilSel);}
-
+ 
 async function criarCliente(){
   const empresa=document.getElementById('m-empresa').value.trim();
   if(!empresa||!modalPerfilSel)return;
@@ -224,7 +248,7 @@ async function criarCliente(){
     document.getElementById('btn-create').textContent='Criar Cliente';
   }
 }
-
+ 
 async function deleteCliente(id){
   if(!confirm('Remover este cliente permanentemente?'))return;
   try{
@@ -234,9 +258,10 @@ async function deleteCliente(id){
     renderAll();
   }catch(e){alert('Erro ao remover.');}
 }
-
-function setAtivo(id){ativo=id;renderAll();}
-
+ 
+function setAtivo(id){abaAtiva='clientes';ativo=id;renderAll();}
+function setNPS(){abaAtiva='nps';renderAll();}
+ 
 function toggleDore(i){const c=getAtivo();const s=new Set(c.dc);s.has(i)?s.delete(i):s.add(i);c.dc=[...s];saveCliente(c);render();}
 function deleteDore(i){const c=getAtivo();c.dores.splice(i,1);const s=new Set(c.dc);const n=new Set();s.forEach(x=>{if(x<i)n.add(x);else if(x>i)n.add(x-1);});c.dc=[...n];saveCliente(c);render();}
 function addDore(){const el=document.getElementById('nova-dore');const v=el.value.trim();if(!v)return;getAtivo().dores.push(v);el.value='';saveCliente(getAtivo());render();}
@@ -245,16 +270,44 @@ function toggleFaseItem(fi,ii){const c=getAtivo();if(!c.fc[fi])c.fc[fi]=[];const
 function deleteFaseItem(fi,ii){const c=getAtivo();c.fases[fi].itens.splice(ii,1);if(c.fc[fi]){const s=new Set(c.fc[fi]);const n=new Set();s.forEach(k=>{const x=parseInt(k.slice(1));if(x<ii)n.add('i'+x);else if(x>ii)n.add('i'+(x-1));});c.fc[fi]=[...n];}saveCliente(c);render();}
 function addFaseItem(fi){const el=document.getElementById('add-item-'+fi);const v=el.value.trim();if(!v)return;getAtivo().fases[fi].itens.push(v);el.value='';saveCliente(getAtivo());render();}
 function copyLink(slug){navigator.clipboard.writeText(window.location.origin+'/cliente?slug='+slug);alert('Link copiado!');}
-
+ 
 function renderAll(){renderBar();render();}
 function renderBar(){
   const bar=document.getElementById('clients-bar');let h='';
   clientes.forEach(c=>{const p=perfisBase[c.perfil],ia=c.id===ativo;h+=`<button class="client-tab ${ia?'active-'+c.perfil:''}" onclick="setAtivo('${c.id}')"><div class="client-tab-dot" style="background:${p.dot}"></div>${c.empresa}${ia?`<button class="client-tab-del" onclick="event.stopPropagation();deleteCliente('${c.id}')">x</button>`:''}</button>`;});
   h+=`<button class="btn-add-client" onclick="openModal()">+ Novo cliente</button>`;
+  h+=`<button class="btn-nps ${abaAtiva==='nps'?'ativo':''}" onclick="setNPS()">&#9733; NPS</button>`;
   bar.innerHTML=h;
 }
-
+ 
+function renderNPS(){
+  const ct=document.getElementById('content');
+  ct.innerHTML=`<div class="nps-panel">
+    <div class="nps-header">
+      <div style="font-size:16px;font-weight:800;color:#f5f5f0">Painel NPS</div>
+      <div class="nps-stats">
+        <div><div class="nps-stat-val">4</div><div class="nps-stat-lbl">Responderam</div></div>
+        <div><div class="nps-stat-val">9.0</div><div class="nps-stat-lbl">Nota Media</div></div>
+        <div><div class="nps-stat-val">10</div><div class="nps-stat-lbl">Total</div></div>
+      </div>
+    </div>
+    <div class="nps-cards">
+      <div class="nps-card"><div><div class="nps-cname">Smartphone Service</div></div><div><div class="nps-ring nps-ring-empty" style="margin:0 auto">—</div></div><div><div class="nps-badge nps-badge-no" style="margin:0 auto">Pendente</div></div><div class="nps-opinion-empty">Aguardando resposta</div></div>
+      <div class="nps-card"><div><div class="nps-cname">CS Agua da Boa</div></div><div><div class="nps-ring nps-ring-10" style="margin:0 auto">10</div></div><div><div class="nps-badge nps-badge-yes" style="margin:0 auto">&#10003; Sim</div></div><div class="nps-opinion">"O grande diferencial e ter alguem fora da sua operacao te ajudando. Nao tenho o que reclamar, so agradecer."</div></div>
+      <div class="nps-card pending"><div><div class="nps-cname">Fix na Hora</div><div class="nps-plabel">Nao respondeu</div></div><div><div class="nps-ring nps-ring-empty" style="margin:0 auto">—</div></div><div><div class="nps-badge nps-badge-no" style="margin:0 auto">Pendente</div></div><div class="nps-opinion-empty">Aguardando resposta</div></div>
+      <div class="nps-card pending"><div><div class="nps-cname">PCAMP</div><div class="nps-plabel">Nao respondeu</div></div><div><div class="nps-ring nps-ring-empty" style="margin:0 auto">—</div></div><div><div class="nps-badge nps-badge-no" style="margin:0 auto">Pendente</div></div><div class="nps-opinion-empty">Aguardando resposta</div></div>
+      <div class="nps-card pending"><div><div class="nps-cname">Hemi Cell</div><div class="nps-plabel">Nao respondeu</div></div><div><div class="nps-ring nps-ring-empty" style="margin:0 auto">—</div></div><div><div class="nps-badge nps-badge-no" style="margin:0 auto">Pendente</div></div><div class="nps-opinion-empty">Aguardando resposta</div></div>
+      <div class="nps-card"><div><div class="nps-cname">Senhor Smart BH</div></div><div><div class="nps-ring nps-ring-9" style="margin:0 auto">9</div></div><div><div class="nps-badge nps-badge-yes" style="margin:0 auto">&#10003; Sim</div></div><div class="nps-opinion">"Nao dou 10 porque nao existe nada perfeito. As vezes a gente fica com duvida, receio do que voces falam. Mas faz todo sentido, estou tendo clareza e esta me ajudando muitoooo."</div></div>
+      <div class="nps-card"><div><div class="nps-cname">Ed Celular</div></div><div><div class="nps-ring nps-ring-10" style="margin:0 auto">10</div></div><div><div class="nps-badge nps-badge-yes" style="margin:0 auto">&#10003; Sim</div></div><div class="nps-opinion">"O acompanhamento tem sido muito positivo. Eles trazem visoes que dificilmente teriamos sozinhos. Os prazos e metas nos ajudam a manter foco e constancia."</div></div>
+      <div class="nps-card pending"><div><div class="nps-cname">Motocell</div><div class="nps-plabel">Nao respondeu</div></div><div><div class="nps-ring nps-ring-empty" style="margin:0 auto">—</div></div><div><div class="nps-badge nps-badge-no" style="margin:0 auto">Pendente</div></div><div class="nps-opinion-empty">Aguardando resposta</div></div>
+      <div class="nps-card"><div><div class="nps-cname">Casa do Notebook</div></div><div><div class="nps-ring nps-ring-7" style="margin:0 auto">7</div></div><div><div class="nps-badge nps-badge-yes" style="margin:0 auto">&#10003; Sim</div></div><div class="nps-opinion">"Sinto falha no cronograma e que a metodologia esta ultrapassada. As informacoes sao passadas, mas nao sinto que acompanham de verdade."</div></div>
+      <div class="nps-card pending"><div><div class="nps-cname">ISatek</div><div class="nps-plabel">Nao respondeu</div></div><div><div class="nps-ring nps-ring-empty" style="margin:0 auto">—</div></div><div><div class="nps-badge nps-badge-no" style="margin:0 auto">Pendente</div></div><div class="nps-opinion-empty">Aguardando resposta</div></div>
+    </div>
+  </div>`;
+}
+ 
 function render(){
+  if(abaAtiva==='nps'){renderNPS();return;}
   const ct=document.getElementById('content');const c=getAtivo();
   if(!c){ct.innerHTML='<div class="empty"><div class="empty-icon">&#x1F3E2;</div><h3>Nenhum cliente ainda</h3><p>Adicione o primeiro cliente para comecar.</p><button class="btn-primary" onclick="openModal()">+ Adicionar cliente</button></div>';return;}
   const p=perfisBase[c.perfil];const ds=new Set(c.dc);const tot=c.dores.length,dn=ds.size,pct=tot>0?Math.round(dn/tot*100):0;
@@ -272,7 +325,7 @@ function render(){
   c.fases.forEach((f,fi)=>{const cks=new Set(c.fc[fi]||[]);const ft=f.itens.length,fd=cks.size,fp=ft>0?Math.round(fd/ft*100):0;const io=!!c.fo[fi];const cor=CORES[fi%CORES.length];h+=`<div class="phase-card ${io?'open':''}"><div class="phase-header" onclick="toggleFase(${fi})"><div class="phase-num" style="background:${cor}">${fi+1}</div><div class="phase-meta"><div class="phase-title">${f.t}</div><div class="phase-sub">${f.s} - ${fd}/${ft} itens</div></div><div class="phase-badge">${f.m}</div><div class="phase-arrow">&#9660;</div></div><div class="phase-body"><div class="section-title" style="margin-top:12px">O que trabalhar</div><div class="items-list">`;f.itens.forEach((item,ii)=>{const ok=cks.has('i'+ii);h+=`<div class="check-item ${ok?'done':''}"><div class="check-clickable" onclick="toggleFaseItem(${fi},${ii})"><div class="cbox">${ok?'&#10003;':''}</div><span class="itext">${item}</span></div><button class="del-btn" onclick="deleteFaseItem(${fi},${ii})">x</button></div>`;});h+=`</div><div class="add-item-row"><input id="add-item-${fi}" type="text" placeholder="Adicionar item..." onkeydown="if(event.key==='Enter')addFaseItem(${fi})"><button onclick="addFaseItem(${fi})">+ Item</button></div>`;if(f.ent&&f.ent.length){h+='<div class="section-title" style="margin-top:12px">Entregaveis</div>';f.ent.forEach(e=>{h+=`<div class="entregavel">&#128204; ${e}</div>`;});}if(f.cp){h+=`<div class="checkpoint">&#10003; Checkpoint: ${f.cp}</div>`;}h+=`<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:${fp}%;background:${cor}"></div></div><div class="prog-text" style="margin-top:4px">${fp}% desta fase concluida</div></div></div>`;});
   ct.innerHTML=h;
 }
-
+ 
 loadClientes();
 </script>
 </body>
