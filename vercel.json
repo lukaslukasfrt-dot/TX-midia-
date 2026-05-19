@@ -1,4 +1,7 @@
 {
-  "cleanUrls": false,
-  "trailingSlash": false
+  "rewrites": [
+    { "source": "/avaliacoes", "destination": "/avaliacoes.html" },
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/cliente", "destination": "/cliente.html" }
+  ]
 }
