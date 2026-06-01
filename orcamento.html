@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TX Mídia — Calculadora de Orçamento</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f0f5;color:#1a1a2e;min-height:100vh;padding:24px 20px 60px}
+.max{max-width:680px;margin:0 auto}
+.hdr{background:#fff;border:1px solid #ddd;border-radius:12px;padding:20px 24px;margin-bottom:20px;display:flex;align-items:center;gap:16px}
+.tag{background:#f97316;color:#fff;font-size:10px;font-weight:700;letter-spacing:3px;padding:3px 10px;border-radius:3px;display:inline-block;margin-bottom:8px}
+.hdr-title{font-size:18px;font-weight:800;color:#1a1a2e;margin:0}
+.hdr-sub{font-size:12px;color:#666;margin:4px 0 0}
+.section{background:#fff;border:1px solid #e0e0e8;border-radius:12px;padding:20px;margin-bottom:12px}
+.stitle{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#888;margin:0 0 14px;padding-bottom:8px;border-bottom:1px solid #e0e0e8}
+.tipo-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tipo-card{padding:14px;border-radius:8px;border:1.5px solid #1e1e2e;background:#f8f8fc;cursor:pointer;transition:all .15s}
+.tipo-card:hover{border-color:#f97316}
+.tipo-card.active{border-color:#f97316;background:#fff}
+.tipo-card-nome{font-size:13px;font-weight:600;color:#e8e8f0;margin:0 0 4px}
+.tipo-card-mob{font-size:11px;color:#666;margin:0}
+.tipo-card-mob span{color:#f97316;font-weight:600}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.field label{font-size:12px;color:#555}
+.field input,.field select{width:100%;padding:9px 12px;border-radius:8px;border:1px solid #1e1e2e;background:#f8f8fc;color:#1a1a2e;font-size:13px;font-family:inherit;outline:none}
+.field input:focus,.field select:focus{border-color:#f97316}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mult-group{display:flex;gap:8px}
+.mult-btn{flex:1;padding:8px;border-radius:8px;border:1px solid #1e1e2e;background:#111118;color:#666;font-size:13px;cursor:pointer;font-family:inherit;transition:all .15s;text-align:center}
+.mult-btn.active{background:#f97316;color:#fff;border-color:#f97316}
+.tela-list{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.tela-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:8px;border:1px solid #1e1e2e;background:#f8f8fc;cursor:pointer;transition:all .15s}
+.tela-item:hover{border-color:#f97316}
+.tela-item.selected{border-color:#f97316;background:#fff}
+.tela-nome{font-size:13px;color:#1a1a2e}
+.tela-preco{font-size:13px;font-weight:600;color:#f97316}
+.divider{height:1px;background:#e0e0e8;margin:14px 0}
+.toggle-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.toggle{width:36px;height:20px;border-radius:10px;background:#ccc;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
+.toggle.on{background:#f97316}
+.toggle::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:2px;left:2px;transition:left .2s}
+.toggle.on::after{left:18px}
+.toggle-label{font-size:13px;color:#1a1a2e}
+.mob-info{background:#fff3e0;border:1px solid rgba(249,115,22,.3);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:#555}
+.mob-info span{color:#f97316;font-weight:600}
+.result-card{background:#fff;border:1px solid #e0e0e8;border-radius:12px;padding:20px;margin-bottom:12px}
+.rtitle{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#888;margin:0 0 14px}
+.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.ritem{background:#f4f4f8;border:1px solid #e0e0e8;border-radius:8px;padding:12px}
+.ritem-label{font-size:11px;color:#666;margin:0 0 4px}
+.ritem-val{font-size:17px;font-weight:700;color:#1a1a2e;margin:0}
+.rtotal{background:#f97316;border-radius:8px;padding:14px;display:flex;align-items:center;justify-content:space-between}
+.rtotal-label{font-size:13px;color:rgba(255,255,255,.8)}
+.rtotal-val{font-size:24px;font-weight:800;color:#fff}
+.btn-calc{width:100%;padding:12px;border-radius:8px;border:none;background:#f97316;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:4px}
+.btn-calc:hover{background:#ea6c0a}
+.btn-reset{width:100%;padding:10px;border-radius:8px;border:1px solid #1e1e2e;background:transparent;color:#666;font-size:13px;cursor:pointer;font-family:inherit;margin-top:8px}
+.btn-reset:hover{border-color:#333348;color:#1a1a2e}
+.note{font-size:11px;color:#888;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="max">
+  <div class="hdr">
+    <div>
+      <div class="tag">TX MIDIA</div>
+      <p class="hdr-title">Calculadora de Orcamento</p>
+      <p class="hdr-sub">Assistencia tecnica · Pecas + mao de obra + impostos</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="stitle">Tipo de aparelho + mao de obra</p>
+    <div class="tipo-grid" id="tipo-grid">
+      <div class="tipo-card active" onclick="setTipo('iphone13')">
+        <p class="tipo-card-nome">iPhone ate 13</p>
+        <p class="tipo-card-mob">Mao de obra: <span>R$ 200</span></p>
+      </div>
+      <div class="tipo-card" onclick="setTipo('iphone14')">
+        <p class="tipo-card-nome">iPhone 14 em diante</p>
+        <p class="tipo-card-mob">Mao de obra: <span>R$ 250</span></p>
+      </div>
+      <div class="tipo-card" onclick="setTipo('android')">
+        <p class="tipo-card-nome">Android</p>
+        <p class="tipo-card-mob">Mao de obra: <span>R$ 200</span></p>
+      </div>
+      <div class="tipo-card" onclick="setTipo('macbook')">
+        <p class="tipo-card-nome">MacBook</p>
+        <p class="tipo-card-mob">Mao de obra: <span>R$ 400</span></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="stitle">Telas disponiveis</p>
+    <div class="tela-list" id="tela-list"></div>
+    <div class="divider"></div>
+    <div class="row">
+      <div class="field">
+        <label>Peca selecionada</label>
+        <input type="text" id="peca-nome" placeholder="Ou digite manualmente..." oninput="calcular()">
+      </div>
+      <div class="field">
+        <label>Custo da peca (R$)</label>
+        <input type="number" id="peca-custo" placeholder="0,00" min="0" step="0.01" oninput="calcular()">
+      </div>
+    </div>
+    <div class="field">
+      <label>Multiplicador</label>
+      <div class="mult-group" id="mult-group">
+        <button class="mult-btn" onclick="setMult(1.5)">1.5x</button>
+        <button class="mult-btn" onclick="setMult(2)">2x</button>
+        <button class="mult-btn active" onclick="setMult(3)">3x</button>
+      </div>
+    </div>
+    <p class="note">iPhone = recomendado 3x · Android = recomendado 2x · MacBook = recomendado 1.5x</p>
+  </div>
+
+  <div class="section">
+    <p class="stitle">Mao de obra</p>
+    <div class="mob-info" id="mob-info">
+      Mao de obra automatica para <strong id="mob-tipo-nome">iPhone ate 13</strong>: <span id="mob-valor-display">R$ 200,00</span>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle on" id="mob-toggle" onclick="toggleMob()"></div>
+      <span class="toggle-label">Incluir mao de obra</span>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle" id="mob-custom-toggle" onclick="toggleMobCustom()"></div>
+      <span class="toggle-label">Usar valor personalizado</span>
+    </div>
+    <div id="mob-custom-row" style="display:none">
+      <div class="field">
+        <label>Valor personalizado (R$)</label>
+        <input type="number" id="mob-custom" placeholder="0,00" min="0" step="0.01" oninput="calcular()">
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="stitle">Extras</p>
+    <div class="toggle-row">
+      <div class="toggle on" id="delivery-toggle" onclick="toggleDelivery()"></div>
+      <span class="toggle-label">Delivery (R$ 25,00 fixo)</span>
+    </div>
+    <div class="divider"></div>
+    <div class="toggle-row">
+      <div class="toggle on" id="imposto-toggle" onclick="toggleImposto()"></div>
+      <span class="toggle-label">Imposto (5% sobre total)</span>
+    </div>
+  </div>
+
+  <button class="btn-calc" onclick="calcular()">Calcular orcamento</button>
+
+  <div class="result-card" style="margin-top:12px">
+    <p class="rtitle">Resumo do orcamento</p>
+    <div class="rgrid">
+      <div class="ritem"><p class="ritem-label">Peca (com mult.)</p><p class="ritem-val" id="r-peca">R$ 0,00</p></div>
+      <div class="ritem"><p class="ritem-label">Mao de obra</p><p class="ritem-val" id="r-mob">R$ 0,00</p></div>
+      <div class="ritem"><p class="ritem-label">Imposto (5%)</p><p class="ritem-val" id="r-imposto">R$ 0,00</p></div>
+      <div class="ritem"><p class="ritem-label">Delivery</p><p class="ritem-val" id="r-delivery">R$ 25,00</p></div>
+    </div>
+    <div class="rtotal">
+      <span class="rtotal-label">Total do orcamento</span>
+      <span class="rtotal-val" id="r-total">R$ 0,00</span>
+    </div>
+  </div>
+
+  <button class="btn-reset" onclick="resetar()">Limpar orcamento</button>
+</div>
+
+<script>
+const TIPOS={
+  iphone13:{nome:'iPhone ate 13',mob:200,mult:3,cat:'iphone13'},
+  iphone14:{nome:'iPhone 14 em diante',mob:250,mult:3,cat:'iphone14'},
+  android:{nome:'Android',mob:200,mult:2,cat:'android'},
+  macbook:{nome:'MacBook',mob:400,mult:1.5,cat:'macbook'}
+};
+const TELAS=[
+  {nome:'Tela iPhone 16',preco:700,cat:'iphone14'},
+  {nome:'Tela iPhone 15 Pro Max',preco:620,cat:'iphone14'},
+  {nome:'Tela iPhone 14',preco:480,cat:'iphone14'},
+  {nome:'Tela iPhone 13',preco:380,cat:'iphone13'},
+  {nome:'Tela iPhone 11',preco:280,cat:'iphone13'},
+  {nome:'Tela Samsung Galaxy S24',preco:320,cat:'android'},
+  {nome:'Tela Samsung A54',preco:180,cat:'android'},
+  {nome:'Tela Motorola Edge 40',preco:150,cat:'android'},
+  {nome:'Tela MacBook Pro 14',preco:980,cat:'macbook'},
+  {nome:'Tela MacBook Air M2',preco:750,cat:'macbook'}
+];
+let tipoAtual='iphone13',multAtual=3,mobAtiva=true,mobCustomAtiva=false,deliveryAtivo=true,impostoAtivo=true,telaSelecionada=null;
+
+function setTipo(t){
+  tipoAtual=t;telaSelecionada=null;
+  document.getElementById('peca-nome').value='';
+  document.getElementById('peca-custo').value='';
+  document.querySelectorAll('.tipo-card').forEach((c,i)=>{c.classList.toggle('active',Object.keys(TIPOS)[i]===t);});
+  const tipo=TIPOS[t];
+  setMult(tipo.mult);
+  document.getElementById('mob-tipo-nome').textContent=tipo.nome;
+  document.getElementById('mob-valor-display').textContent='R$ '+tipo.mob.toFixed(2).replace('.',',');
+  renderTelas();calcular();
+}
+function setMult(v){
+  multAtual=v;
+  document.querySelectorAll('#mult-group .mult-btn').forEach((b,i)=>{b.classList.toggle('active',[1.5,2,3][i]===v);});
+  calcular();
+}
+function renderTelas(){
+  const list=document.getElementById('tela-list');
+  const filtradas=TELAS.filter(t=>t.cat===tipoAtual);
+  if(!filtradas.length){list.innerHTML='<p style="font-size:12px;color:#888">Nenhuma tela cadastrada para este tipo.</p>';return;}
+  list.innerHTML=filtradas.map(t=>`<div class="tela-item ${telaSelecionada===t.nome?'selected':''}" onclick="selecionarTela('${t.nome}',${t.preco})"><span class="tela-nome">${t.nome}</span><span class="tela-preco">R$ ${t.preco.toFixed(2).replace('.',',')}</span></div>`).join('');
+}
+function selecionarTela(nome,preco){
+  telaSelecionada=nome;
+  document.getElementById('peca-nome').value=nome;
+  document.getElementById('peca-custo').value=preco;
+  renderTelas();calcular();
+}
+function toggleMob(){mobAtiva=!mobAtiva;document.getElementById('mob-toggle').classList.toggle('on',mobAtiva);calcular();}
+function toggleMobCustom(){
+  mobCustomAtiva=!mobCustomAtiva;
+  document.getElementById('mob-custom-toggle').classList.toggle('on',mobCustomAtiva);
+  document.getElementById('mob-custom-row').style.display=mobCustomAtiva?'block':'none';
+  calcular();
+}
+function toggleDelivery(){deliveryAtivo=!deliveryAtivo;document.getElementById('delivery-toggle').classList.toggle('on',deliveryAtivo);calcular();}
+function toggleImposto(){impostoAtivo=!impostoAtivo;document.getElementById('imposto-toggle').classList.toggle('on',impostoAtivo);calcular();}
+function fmt(v){return 'R$ '+v.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.');}
+function calcular(){
+  const custo=parseFloat(document.getElementById('peca-custo').value)||0;
+  let mob=0;
+  if(mobAtiva){mob=mobCustomAtiva?(parseFloat(document.getElementById('mob-custom').value)||0):TIPOS[tipoAtual].mob;}
+  const delivery=deliveryAtivo?25:0;
+  const pecaFinal=custo*multAtual;
+  const subtotal=pecaFinal+mob+delivery;
+  const imposto=impostoAtivo?subtotal*0.05:0;
+  const total=subtotal+imposto;
+  document.getElementById('r-peca').textContent=fmt(pecaFinal);
+  document.getElementById('r-mob').textContent=fmt(mob);
+  document.getElementById('r-imposto').textContent=fmt(imposto);
+  document.getElementById('r-delivery').textContent=fmt(delivery);
+  document.getElementById('r-total').textContent=fmt(total);
+}
+function resetar(){
+  telaSelecionada=null;
+  document.getElementById('peca-nome').value='';
+  document.getElementById('peca-custo').value='';
+  document.getElementById('mob-custom').value='';
+  mobAtiva=true;deliveryAtivo=true;impostoAtivo=true;mobCustomAtiva=false;
+  document.getElementById('mob-toggle').classList.add('on');
+  document.getElementById('delivery-toggle').classList.add('on');
+  document.getElementById('imposto-toggle').classList.add('on');
+  document.getElementById('mob-custom-toggle').classList.remove('on');
+  document.getElementById('mob-custom-row').style.display='none';
+  setTipo('iphone13');
+}
+renderTelas();calcular();
+</script>
+</body>
+</html>
